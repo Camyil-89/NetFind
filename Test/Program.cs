@@ -17,18 +17,20 @@ namespace Test
 			bool Server = false;
 			bool Client = false;
 			NetFind.TCPServer tCPServer = new NetFind.TCPServer();
+			NetFind.TCPConnect tCPConnect = new NetFind.TCPConnect();
+			tCPConnect.TimeoutBeforeSend = 50;
+			tCPServer.TimeoutBeforeSend = 50;
 
 			TcpClient tcpClientServer = new TcpClient();
 			Task.Run(() => {
-				var listener = tCPServer.StartTCPServer(32000);
+				var listener = tCPServer.StartTCPServer(32000 + count);
 				listener.Start();
 				tcpClientServer = listener.AcceptTcpClient();
 				//Console.WriteLine($"Server start: {x.Client.LocalEndPoint}");
 				//Console.WriteLine($"Server client: {x.Client.RemoteEndPoint}");
 				Server = true;
 			});
-			NetFind.TCPConnect tCPConnect = new NetFind.TCPConnect();
-			var client = tCPConnect.FindTCPListener(32000, 2000);
+			var client = tCPConnect.FindTCPListener(32000 + count, 2000);
 			Client = true;
 
 			Stopwatch stopwatch = new Stopwatch();
@@ -38,10 +40,14 @@ namespace Test
 				if (stopwatch.ElapsedMilliseconds > 500)
 				{
 					Console.WriteLine($"{count} TIMEOUT");
-					Console.WriteLine($"\t\t[{tcpClientServer.Client.RemoteEndPoint}]" +
+					try
+					{
+						Console.WriteLine($"\t\t[{tcpClientServer.Client.RemoteEndPoint}]" +
 					$" [{tcpClientServer.Client.LocalEndPoint}]" +
 					$" [{client.Client.RemoteEndPoint}]" +
 					$" [{client.Client.LocalEndPoint}]");
+					} catch (Exception e) { Console.WriteLine(e); }
+					
 					break;
 				}
 				Thread.Sleep(1);
@@ -73,13 +79,30 @@ namespace Test
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
 
-			for (int i = 0; i < 10000; i++)
+			for (int i = 0; i < 100; i++)
 			{
 				Test(i);
 				if (i % 25 == 0) Console.WriteLine($"{i} TESTS; time {stopwatch.Elapsed.TotalSeconds} sec.");
-				Thread.Sleep(400);
+				//Thread.Sleep(400);
 			}
+			//NetFind.TCPServer tCPServer = new NetFind.TCPServer();
+			//NetFind.TCPConnect tCPConnect = new NetFind.TCPConnect();
+			//tCPServer.TimeoutConnectClient = 500;
+			//Task.Run(() => {
+			//	var x = tCPServer.StartTCPServer(32000);
+			//	x.Start();
+			//	while (true)
+			//	{
+			//		var cl = x.AcceptTcpClient();
+			//		Console.WriteLine(cl.Client.RemoteEndPoint);
+			//	}
+			//});
 
+			//try
+			//{
+			//	tCPConnect.FindTCPListener(32000, 500);
+			//}
+			//catch (Exception e) { Console.WriteLine(e); }
 			Console.WriteLine($"END TEST {stopwatch.ElapsedMilliseconds}");
 			Console.ReadLine();
 		}

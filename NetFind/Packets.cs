@@ -18,6 +18,8 @@ namespace NetFind.Packet
 	[Serializable]
 	public class UdpFind
 	{
+		public float Version { get; } = 1.0f;
+		public Guid UID { get; set; } = Guid.NewGuid();
 		public FindType Type { get; set; } 
 		public int PortServer { get; set; }
 		public int PortClient { get; set; } // Заполняет тот кто ищет (клиент)

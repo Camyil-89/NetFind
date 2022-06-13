@@ -37,23 +37,28 @@ namespace NetFind
 	}
 	public class TCPServer
 	{
-		public int TimeoutSendPacket = 2000;
+		public int TimeoutSendPacket = 500;
+		public int TimeoutBeforeSend = 50;
+		public bool DisposeResource = false;
+
+
 		bool SendPacket = false;
 		List<Packet.FindType> BlackList = new List<Packet.FindType>();
-		bool DisposeResource = false;
 		void SenderPacket(UdpClient udpClient, IPEndPoint iPEndPoint, byte[] array)
 		{
 			SendPacket = true;
 			Task.Run(() =>
 			{
-				while (SendPacket)
+				Stopwatch stopwatch = new Stopwatch();
+				stopwatch.Start();
+				while (SendPacket && !DisposeResource && stopwatch.ElapsedMilliseconds < TimeoutSendPacket)
 				{
 					try
 					{
 						udpClient.Send(array, array.Length, iPEndPoint);
 					}
 					catch { }
-					//Thread.Sleep(16);
+					Thread.Sleep(TimeoutBeforeSend);
 				}
 			});
 		}
@@ -67,23 +72,32 @@ namespace NetFind
 				UdpClient listener = new UdpClient(Port);
 				IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, Port);
 
+
 				bool CloseSocket = false;
+
+				Guid last_packet_uid = Guid.Empty;
+				
 				while (!DisposeResource)
 				{
 					try
 					{
 						var x = listener.Receive(ref iPEndPoint);
 						var packet = Packet.UdpFind.FromByteArray(listener.Receive(ref iPEndPoint));
+						if (last_packet_uid != packet.UID)
+						{
+							BlackList.Clear();
+							SendPacket = false;
+						}
 						if (BlackList.Contains(packet.Type)) continue;
 						BlackList.Add(packet.Type);
 						SendPacket = false;
 						switch (packet.Type)
 						{
 							case Packet.FindType.Find:
+								last_packet_uid = packet.UID;
 								packet.Type = Packet.FindType.Connect;
 								packet.PortServer = PortTcpListener;
 								packet.IPAddressServer = Utility.GetLocalIPAddress();
-
 								SenderPacket(listener,
 									new IPEndPoint(packet.IPAddressClient, packet.PortClient),
 									Packet.UdpFind.ToByteArray(packet));
@@ -96,11 +110,12 @@ namespace NetFind
 								break;
 						}
 					}
-					catch (Exception e)
+					catch
 					{
 						if (CloseSocket) break;
 					}
 				}
+				DisposeResource = true;
 				SendPacket = false;
 				listener.Close();
 				listener.Dispose();
@@ -110,13 +125,15 @@ namespace NetFind
 	}
 	public class TCPConnect
 	{
+		public int TimeoutBeforeSend = 50;
+		public bool DisposeResource = false;
+
+
 		int AvailablePortListener = Utility.GetAvailablePort();
 		UdpClient udpFind = new UdpClient();
 
 		List<Packet.FindType> BlackList = new List<Packet.FindType>();
 
-
-		bool DisposeResource = false;
 		Packet.UdpFind UdpFindPacket = null;
 
 
@@ -145,6 +162,7 @@ namespace NetFind
 
 			Packet.UdpFind Packet_udp = new Packet.UdpFind()
 			{
+				UID = Guid.NewGuid(),
 				Type = Packet.FindType.Find,
 				IPAddressClient = Utility.GetLocalIPAddress(),
 				PortClient = AvailablePortListener,
@@ -157,7 +175,7 @@ namespace NetFind
 			bool StartTCPConnect = false;
 
 
-			while (stopwatch.ElapsedMilliseconds < Timeout)
+			while (stopwatch.ElapsedMilliseconds < Timeout && !DisposeResource)
 			{
 				try
 				{
@@ -180,11 +198,11 @@ namespace NetFind
 				}
 				catch { }
 				if (StartTCPConnect) break;
-				//Thread.Sleep(16);
+				Thread.Sleep(TimeoutBeforeSend);
 			}
-			if (!StartTCPConnect) return null;
 			DisposeResource = true;
 			udpFind.Close();
+			if (!StartTCPConnect) throw new Exception("Timeout connect to server!");
 
 			TcpClient tcpClient = new TcpClient();
 			tcpClient.Connect(UdpFindPacket.IPAddressServer, UdpFindPacket.PortServer);
