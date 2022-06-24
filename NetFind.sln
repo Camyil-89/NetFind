@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetFind", "NetFind\NetFind.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{D941820C-96F6-4541-9D79-CD79BA6F2462}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTest", "ServerTest\ServerTest.csproj", "{7929A9AA-298C-4AAB-9946-7E99F08170B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D941820C-96F6-4541-9D79-CD79BA6F2462}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D941820C-96F6-4541-9D79-CD79BA6F2462}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D941820C-96F6-4541-9D79-CD79BA6F2462}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7929A9AA-298C-4AAB-9946-7E99F08170B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7929A9AA-298C-4AAB-9946-7E99F08170B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7929A9AA-298C-4AAB-9946-7E99F08170B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7929A9AA-298C-4AAB-9946-7E99F08170B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

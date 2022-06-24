@@ -79,30 +79,26 @@ namespace Test
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
 
-			for (int i = 0; i < 100; i++)
-			{
-				Test(i);
-				if (i % 25 == 0) Console.WriteLine($"{i} TESTS; time {stopwatch.Elapsed.TotalSeconds} sec.");
-				//Thread.Sleep(400);
-			}
-			//NetFind.TCPServer tCPServer = new NetFind.TCPServer();
-			//NetFind.TCPConnect tCPConnect = new NetFind.TCPConnect();
-			//tCPServer.TimeoutConnectClient = 500;
-			//Task.Run(() => {
-			//	var x = tCPServer.StartTCPServer(32000);
-			//	x.Start();
-			//	while (true)
-			//	{
-			//		var cl = x.AcceptTcpClient();
-			//		Console.WriteLine(cl.Client.RemoteEndPoint);
-			//	}
-			//});
-
-			//try
+			//for (int i = 0; i < 100; i++)
 			//{
-			//	tCPConnect.FindTCPListener(32000, 500);
+			//	Test(i);
+			//	if (i % 25 == 0) Console.WriteLine($"{i} TESTS; time {stopwatch.Elapsed.TotalSeconds} sec.");
+			//	//Thread.Sleep(400);
 			//}
-			//catch (Exception e) { Console.WriteLine(e); }
+			
+			NetFind.TCPConnect tCPConnect = new NetFind.TCPConnect();
+			tCPConnect.TimeoutBeforeSend = 50;
+			try
+			{
+				Console.WriteLine("start client find");
+				var x =tCPConnect.FindTCPListener(32000, 10000);
+				Console.WriteLine($"LocalEndPoint: {x.Client.LocalEndPoint}\nRemoteEndPoint: {x.Client.RemoteEndPoint}");
+				while (true)
+				{
+					Thread.Sleep(100);
+				}
+			}
+			catch (Exception e) { Console.WriteLine(e); }
 			Console.WriteLine($"END TEST {stopwatch.ElapsedMilliseconds}");
 			Console.ReadLine();
 		}

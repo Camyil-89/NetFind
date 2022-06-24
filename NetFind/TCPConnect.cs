@@ -82,7 +82,9 @@ namespace NetFind
 					try
 					{
 						var x = listener.Receive(ref iPEndPoint);
-						var packet = Packet.UdpFind.FromByteArray(listener.Receive(ref iPEndPoint));
+						Console.WriteLine(x.Length);
+						var packet = Packet.UdpFind.FromByteArray(x);
+						Console.WriteLine("asdas");
 						if (last_packet_uid != packet.UID)
 						{
 							BlackList.Clear();
@@ -97,7 +99,7 @@ namespace NetFind
 								last_packet_uid = packet.UID;
 								packet.Type = Packet.FindType.Connect;
 								packet.PortServer = PortTcpListener;
-								packet.IPAddressServer = Utility.GetLocalIPAddress();
+								packet.IPAddressServer = Utility.GetLocalIPAddress().Address;
 								SenderPacket(listener,
 									new IPEndPoint(packet.IPAddressClient, packet.PortClient),
 									Packet.UdpFind.ToByteArray(packet));
@@ -110,7 +112,7 @@ namespace NetFind
 								break;
 						}
 					}
-					catch
+					catch (Exception e)
 					{
 						if (CloseSocket) break;
 					}
@@ -164,7 +166,7 @@ namespace NetFind
 			{
 				UID = Guid.NewGuid(),
 				Type = Packet.FindType.Find,
-				IPAddressClient = Utility.GetLocalIPAddress(),
+				IPAddressClient = Utility.GetLocalIPAddress().Address,
 				PortClient = AvailablePortListener,
 			};
 			Task.Run(() => { UdpListener(AvailablePortListener); });
@@ -205,7 +207,7 @@ namespace NetFind
 			if (!StartTCPConnect) throw new Exception("Timeout connect to server!");
 
 			TcpClient tcpClient = new TcpClient();
-			tcpClient.Connect(UdpFindPacket.IPAddressServer, UdpFindPacket.PortServer);
+			tcpClient.Connect(new IPAddress(UdpFindPacket.IPAddressServer), UdpFindPacket.PortServer);
 			return tcpClient;
 		}
 	}

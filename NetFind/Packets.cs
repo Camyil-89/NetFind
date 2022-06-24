@@ -23,8 +23,8 @@ namespace NetFind.Packet
 		public FindType Type { get; set; } 
 		public int PortServer { get; set; }
 		public int PortClient { get; set; } // Заполняет тот кто ищет (клиент)
-		public IPAddress IPAddressClient { get; set; } // заполняет тот кто ищет (клиент)
-		public IPAddress IPAddressServer { get; set; }
+		public long IPAddressClient { get; set; } // заполняет тот кто ищет (клиент)
+		public long IPAddressServer { get; set; }
 
 		public override string ToString()
 		{
