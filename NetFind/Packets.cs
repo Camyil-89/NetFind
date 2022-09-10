@@ -18,14 +18,13 @@ namespace NetFind.Packet
 	public class UdpFind
 	{
 		public float Version { get; } = 1.0f;
-		public Guid UID { get; set; } = Guid.NewGuid();
 		public string ID { get; set; }
 		public FindType Type { get; set; }
 		public long IPAddressServer { get; set; }
 
 		public override string ToString()
 		{
-			return $"Type: {Type};IPAddressServer: {IPAddressServer}";
+			return $"Type: {Type};IPAddressServer: {IPAddressServer};Version: {Version};ID: {ID}";
 		}
 		public static byte[] ToByteArray(object obj)
 		{
