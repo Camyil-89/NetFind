@@ -58,7 +58,7 @@ namespace NetFind
 		private bool Work = true;
 
 		public void Stop() => Work = false;
-		public void Start(int Port)
+		public void Start(int Port, string ID = null)
 		{
 			IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, Port);
 			udpClient = new UdpClient(iPEndPoint);
@@ -83,8 +83,8 @@ namespace NetFind
 
 
 					IPEndPoint iPEndPoint1 = new IPEndPoint(iPEndPoint.Address, Port + 1);
-
-					sender.Send(packet_data, packet_data.Length, iPEndPoint1);
+					if (ID == packet.ID)
+						sender.Send(packet_data, packet_data.Length, iPEndPoint1);
 				}
 				catch { }
 			}
@@ -98,11 +98,11 @@ namespace NetFind
 	{
 		UdpClient udpClient;
 		private bool Find = true;
-		private void Send()
+		private void Send(string ID)
 		{
 			Packet.UdpFind udpFind = new Packet.UdpFind();
 			udpFind.Type = Packet.FindType.Find;
-
+			udpFind.ID = ID;
 			while (Find)
 			{
 				try
@@ -114,7 +114,7 @@ namespace NetFind
 			}
 			udpClient.Dispose();
 		}
-		public IPAddress StartFind(int Port, int TimeoutWaitConnection = 5000)
+		private IPAddress _StartFind(int Port, int TimeoutWaitConnection, string ID)
 		{
 			var addressInfo = Utility.GetIPAddressInformation();
 			List<byte> address = new List<byte>();
@@ -132,7 +132,7 @@ namespace NetFind
 			udpClient.EnableBroadcast = true;
 			udpClient.Connect(endPoint);
 
-			Task.Run(() => { Send(); });
+			Task.Run(() => { Send(ID); });
 
 			IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, Port + 1);
 			UdpClient client = new UdpClient(iPEndPoint);
@@ -157,6 +157,18 @@ namespace NetFind
 			Find = false;
 			client.Dispose();
 			return null;
+		}
+		public IPAddress StartFind(int Port, int TimeoutWaitConnection, string ID)
+		{
+			return _StartFind(Port, TimeoutWaitConnection, ID);
+		}
+		public IPAddress StartFind(int Port, int TimeoutWaitConnection)
+		{
+			return _StartFind(Port, TimeoutWaitConnection, null);
+		}
+		public IPAddress StartFind(int Port)
+		{
+			return _StartFind(Port, 5000, null);
 		}
 	}
 
