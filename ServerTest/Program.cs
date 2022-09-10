@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Text;
 
 namespace ServerTest
 {
@@ -6,16 +11,11 @@ namespace ServerTest
 	{
 		static void Main(string[] args)
 		{
-			NetFind.TCPServer tCPServer = new NetFind.TCPServer();
-			tCPServer.TimeoutBeforeSend = 50;
-			var x = tCPServer.StartTCPServer(32000);
-			x.Start();
-			while (true)
-			{
-				Console.WriteLine("Start server");
-				var cl = x.AcceptTcpClient();
-				Console.WriteLine(cl.Client.RemoteEndPoint);
-			}
+			Console.WriteLine("Server");
+
+			NetFind.Server server = new NetFind.Server();
+			server.Start(11000);
+			Console.ReadLine();
 			Console.ReadLine();
 		}
 	}

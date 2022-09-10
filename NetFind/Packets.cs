@@ -9,26 +9,22 @@ using System.IO;
 
 namespace NetFind.Packet
 {
-	public enum FindType: int
+	public enum FindType : int
 	{
 		Find = 1,
-		Connect = 2,
-		ConnectTCP = 3,
+		ConnectAddress = 2,
 	}
 	[Serializable]
 	public class UdpFind
 	{
 		public float Version { get; } = 1.0f;
 		public Guid UID { get; set; } = Guid.NewGuid();
-		public FindType Type { get; set; } 
-		public int PortServer { get; set; }
-		public int PortClient { get; set; } // Заполняет тот кто ищет (клиент)
-		public long IPAddressClient { get; set; } // заполняет тот кто ищет (клиент)
+		public FindType Type { get; set; }
 		public long IPAddressServer { get; set; }
 
 		public override string ToString()
 		{
-			return $"Type: {Type};PortClient: {PortClient}; IPAddressClient: {IPAddressClient}; IPAddressServer: {IPAddressServer}";
+			return $"Type: {Type};IPAddressServer: {IPAddressServer}";
 		}
 		public static byte[] ToByteArray(object obj)
 		{
@@ -38,8 +34,8 @@ namespace NetFind.Packet
 			using (MemoryStream ms = new MemoryStream())
 			{
 				bf.Serialize(ms, obj);
-				return ms.ToArray(); 
-			}	
+				return ms.ToArray();
+			}
 		}
 		public static UdpFind FromByteArray(byte[] data)
 		{
